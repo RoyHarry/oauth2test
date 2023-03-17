@@ -37,8 +37,10 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 		clients.inMemory().withClient("frontendapp")
 		.secret(passwordEncoder.encode("1234"))
 		.scopes("read","write")
-		.authorizedGrantTypes("password","refres_token")
-		.accessTokenValiditySeconds(3600);
+		.authorizedGrantTypes("password","refresh_token")
+		.accessTokenValiditySeconds(3600)
+		.refreshTokenValiditySeconds(3600)
+		;
 		
 	}
 
