@@ -13,31 +13,41 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="usuarios")
-public class Usuario implements Serializable{
+@Table(name = "usuarios")
+public class Usuario implements Serializable {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@Column(unique= true, length=20)	
+
+	@Column(unique = true, length = 20)
 	private String username;
-	@Column(length=60)
+	@Column(length = 60)
 	private String password;
 	private Boolean enabled;
 	private String nombre;
 	private String apellido;
-	
-	@Column(unique=true, length=50)
+
+	@Column(unique = true, length = 50)
 	private String email;
-	
+
 	@ManyToMany(fetch = FetchType.LAZY)
 	private List<Role> roles;
+
+	private Integer intentos;
+
+	public Integer getIntentos() {
+		return intentos;
+	}
+
+	public void setIntentos(Integer intentos) {
+		this.intentos = intentos;
+	}
 
 	public List<Role> getRoles() {
 		return roles;
@@ -102,8 +112,5 @@ public class Usuario implements Serializable{
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	
-	
-	
 
 }
