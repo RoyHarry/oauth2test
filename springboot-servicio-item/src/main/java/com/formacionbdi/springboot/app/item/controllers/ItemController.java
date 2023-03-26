@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.circuitbreaker.CircuitBreakerFactory;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -25,13 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.formacionbdi.springboot.app.item.models.Item;
 import com.formacionbdi.springboot.app.commons.models.entity.Producto;
 import com.formacionbdi.springboot.app.item.models.service.ItemService;
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RefreshScope
 @RestController
 public class ItemController {
 	
 	private static Logger log = LoggerFactory.getLogger(ItemController.class);
+	
+	@Autowired
+	private CircuitBreakerFactory cbFactory;
 	
 	@Autowired
 	private Environment env;
@@ -48,13 +51,19 @@ public class ItemController {
 		return itemService.findAll();
 	}
 	
-	@HystrixCommand(fallbackMethod = "metodoAlternativo")
+	//@HystrixCommand(fallbackMethod = "metodoAlternativo")
 	@GetMapping("/ver/{id}/cantidad/{cantidad}")
 	public Item detalle(@PathVariable Long id, @PathVariable Integer cantidad) {
-		return itemService.findById(id, cantidad);
+		return cbFactory.create("items").run(() -> itemService.findById(id, cantidad)
+				, e -> metodoAlternativo(id, cantidad, e)				  				
+				);
+		
 	}
 
-	public Item metodoAlternativo(Long id, Integer cantidad) {
+	public Item metodoAlternativo(Long id, Integer cantidad, Throwable e) {
+		
+		log.info(e.getMessage());
+		
 		Item item = new Item();
 		Producto producto = new Producto();
 		

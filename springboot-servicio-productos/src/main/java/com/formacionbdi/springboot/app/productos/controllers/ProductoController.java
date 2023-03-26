@@ -1,8 +1,11 @@
 package com.formacionbdi.springboot.app.productos.controllers;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,8 @@ import com.formacionbdi.springboot.app.productos.models.service.IProductoService
 
 @RestController
 public class ProductoController {
+	
+	private final Logger log = LoggerFactory.getLogger(ProductoController.class);
 	
 	@Autowired
 	private Environment env;
@@ -41,7 +46,16 @@ public class ProductoController {
 	}
 	
 	@GetMapping("/ver/{id}")
-	public Producto detalle(@PathVariable Long id) {
+	public Producto detalle(@PathVariable Long id) throws InterruptedException {
+		
+		if(id.equals(10L)) {
+			throw new RuntimeException("producto no encontrado");
+		}
+		
+		if(id.equals(7L)) {
+			TimeUnit.SECONDS.sleep(5L);
+		}
+		
 		Producto producto = productoService.findById(id);
 		producto.setPort(Integer.parseInt(env.getProperty("local.server.port")));
 		//producto.setPort(port);
